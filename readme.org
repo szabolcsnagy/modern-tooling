@@ -1,0 +1,135 @@
+* Overview
+This is about setting up an app from scratch
+
+** Step 1 install webpack
+npm install --save-dev webpack webpack-cli
+
+That installs the webpack and makes it available in node_modules/.bin/webpack
+
+** Step 2 add it to build script
+"build": "webpack"
+
+*** Run webpack in development mode 
+npm run build -- --mode development
+
+** Step 3 add webpack.config.js
+There 2 entries in a simple config
+entry: - for entry points
+output: - for output
+
+** Step 4 Install babel for transpiling
+npm install --save-dev @babel/core @babel/cli @babel/preset-env
+
+ - try run babel, no transpiling happens
+ node_modules/.bin/babel ./src/index.js 
+
+ - try it again with presets
+ node_modules/.bin/babel ./src/index.js --presets=@babel/preset-env
+ OR 
+ $(npm bin)/babel ./src/index.js --presets=@babel/preset-env
+
+ ** Step 5: Marry webpack and babel
+ - You need a loader in webpack called babel-loader
+ npm install -D babel-loader
+ - You need to provide configuration for the loader in webpack.config.js module > rules 
+ modlue: {
+   rules: [
+     {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+        options: {
+          presets: ['@babel/preset-env']
+        }
+     }
+   ]
+ }
+
+** Step 6: Adding react
+ npm install -S react react-dom prop-types
+ where -S means --save as runtime dependency
+
+ - Add App.js
+import React from 'react'
+
+class App extends React.Component {
+  function render() {
+    return <h1>hello</h1>
+  }
+}
+export default App
+
+- index.js
+import React from 'react'
+import ReactDOM from 'react-dom'
+import App from './App'
+
+ReactDOM.render(<App/>,document.getElementById('app'))
+
+-  it won't compile because babel doesn't understand JSX
+It needs a new preset
+  npm install -D @babel/preset-react
+
+- make sure to add the new preset into webpack.config.js
+
+** Step 7: Need HTML to host our React App
+Webpack can generate html for us if we install the html-webpack-plugin
+npm i -D html-webpack-plugin
+
+- The generated HTML will contain our script, but the application is 
+not going to run because of the div#app is missing.
+
+- We can create an html template in the src directory and let the plugin know where the template is.
+
+plugins: [
+  new HtmlWebpackPlugin({
+    template: './src/AppTemplate.html'
+  })
+]
+
+** Step 8: Run Webpack in watch  mode
+- Add this npm script. It also builds a development build with debug info
+"dev": "webpack --watch --mode development"
+
+** Step 9: Separate dev and prod settings
+- install webpack-merge a package that can merge 2 webpack config object
+  npm install -D webpack-merge
+
+- rename current config to webpack.config.base.js
+  Remove the mode setting from the base
+- create 2 new files
+  webpack.config.dev.js
+  webpack.config.prod.js
+
+- config for dev and prod only differ by the mode flag
+const merge = require('webpack-merge')
+const baseConfig = reqire('./webpack.config.base.js')
+
+module.exports = merge(baseConfig,{
+  mode: 'development' // or production
+})
+
+- modify your biuld scripts
+  "dev":"webpack --watch --config webpack.config.dev.js"
+  "biuld":"webpack --config webpack.config.prod.js"
+
+** Step 10: Install webpack dev server
+npm i -D webpack-dev-server
+
+- modify the dev script
+"dev": "webpack-dev-server --config webpack.config.js"
+
+- you can customize your dev config with say a port number
+  Optionally can use host: <ip addr> if you need to access it outside location
+devServer: {
+  port: 9000
+}
+
+** Step 11: Debugging
+You can place a debugger statement into your code, but that will stop the generated code in
+the browser.
+Webpack can generate a source-map that will map your source code to the genrated code.
+Browsers are supporting to load the original source based on the source maps.
+
+So to geneate a soruce map add this line to your dev config
+devtool: 'source-map'
