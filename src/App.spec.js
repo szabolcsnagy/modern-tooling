@@ -1,6 +1,8 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 import App from './App'
+import { Provider } from 'react-redux'
+import store from './store/index'
 
 describe('App', () => {
   it('Runs and passes', () => {
@@ -8,6 +10,10 @@ describe('App', () => {
   })
 
   it('Renders without error', () => {
-    render(<App />)
+    render(
+      <Provider store={store}>
+        <App />
+      </Provider>
+    )
   })
 })

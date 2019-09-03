@@ -2,6 +2,8 @@ import React from 'react'
 import { hot } from 'react-hot-loader'
 import './style.css'
 
+import { ArticleList } from './components/ArticleList'
+
 // dynamically load this component when we need it
 const Warning = React.lazy(() => import('./components/Warning'))
 
@@ -31,6 +33,10 @@ class App extends React.Component {
         </p>
         <button onClick={() => this.setState({ count: count + 1 })}>+</button>
         <button onClick={() => this.setState({ count: count - 1 })}>-</button>
+
+        <hr />
+        <h2>List</h2>
+        <ArticleList />
       </div>
     )
   }
